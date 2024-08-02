@@ -1,10 +1,12 @@
 using ActionFilter.Filter;
+using CompanyEmployees.Presentation.ActionFilters;
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
 using NewCompanyEmployee.Extensions;
+using NewCompanyEmployee.Utility;
 using NLog;
 using Service.DataShaping;
 using Shared.DataTransferObjects;
@@ -28,6 +30,9 @@ builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
+builder.Services.AddCustomMediaTypes();
+builder.Services.AddScoped<ValidateMediaTypeAttribute>();
+builder.Services.AddScoped<IEmployeeLinks, EmployeeLinks>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -46,10 +51,7 @@ builder.Services.AddControllers(config => { config.RespectBrowserAcceptHeader = 
                 .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 
-NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() => new ServiceCollection().AddLogging().AddMvc().AddNewtonsoftJson()
-                                    .Services.BuildServiceProvider()
-                                    .GetRequiredService<IOptions<MvcOptions>>().Value.InputFormatters
-                                    .OfType<NewtonsoftJsonPatchInputFormatter>().First();
+
 
 var app = builder.Build();
 var logger = app.Services.GetRequiredService<ILoggerManager>();
@@ -76,3 +78,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() => new ServiceCollection().AddLogging().AddMvc().AddNewtonsoftJson()
+                                    .Services.BuildServiceProvider()
+                                    .GetRequiredService<IOptions<MvcOptions>>().Value.InputFormatters
+                                    .OfType<NewtonsoftJsonPatchInputFormatter>().First();

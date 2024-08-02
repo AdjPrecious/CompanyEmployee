@@ -25,6 +25,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ActionFilter.Filter", "ActionFilter.Filter\ActionFilter.Filter.csproj", "{493AEB07-DECD-4F55-8AC5-0A5169DFEFD9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5EDDAEC6-859E-4EDB-8E54-0C5759BCFD5B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

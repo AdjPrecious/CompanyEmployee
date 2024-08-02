@@ -1,14 +1,11 @@
-﻿using Microsoft.AspNetCore.JsonPatch;
+﻿using CompanyEmployees.Presentation.ActionFilters;
+using Entities.LinkModels;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using Shared.RequestFeatures;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace CompanyEmployees.Presentation.Controllers
 {
@@ -23,13 +20,17 @@ namespace CompanyEmployees.Presentation.Controllers
         }
 
         [HttpGet]
+        [HttpHead]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParaneters)
         {
-            var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId, employeeParaneters, trackChanges: false);
+            var linkParams = new LinkParameters(employeeParaneters, HttpContext);
 
-            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagedResult.metaData));
+            var result = await _service.EmployeeService.GetEmployeesAsync(companyId, linkParams, trackChanges: false);
 
-            return Ok(pagedResult.employees);
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(result.metaData));
+
+            return result.linkResponse.HasLinks ? Ok(result.linkResponse.LinkedEntities) : Ok(result.linkResponse.ShapedEntities);
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.LinkModels;
 using Entities.Models;
 using Service.Contracts;
 using Service.DataShaping;
@@ -20,14 +21,14 @@ namespace Service
         private readonly IRepositoryManager _repository;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
-        private readonly IDataShaper<EmployeeDto> _dataShaper;
+        private readonly IEmployeeLinks _employeeLinks;
 
-        public EmployeeService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IDataShaper<EmployeeDto> dataShaper) 
+        public EmployeeService(IRepositoryManager repository, ILoggerManager logger, IMapper mapper, IEmployeeLinks employeeLinks) 
         {
             _repository = repository;
             _logger = logger;
             _mapper = mapper;
-            _dataShaper = dataShaper;
+            _employeeLinks = employeeLinks;
         }
 
         private async Task CheckIfCompanyExist(Guid companyId, bool trackChanges)
@@ -89,19 +90,21 @@ namespace Service
             return (employeeToPatch: employeeToPatch, employeeEntity: employeeDb);
         }
 
-        public async Task<(IEnumerable<ExpandoObject> employees, MetaData metaData)> GetEmployeesAsync(Guid companyId, EmployeeParameters employeeParameters, bool trackChanges)
+        public async Task<(LinkResponse linkResponse, MetaData metaData)> GetEmployeesAsync(Guid companyId, LinkParameters linkParameters, bool trackChanges)
         {
 
-            if (!employeeParameters.ValidAgeRange)
+            if (!linkParameters.EmployeeParameters.ValidAgeRange)
                 throw new MaxAgeRangeBadRequestException();
 
             await CheckIfCompanyExist(companyId, trackChanges);
 
-            var employeesWithMetaData = await _repository.Employee.GetEmployeesAsync(companyId, employeeParameters, trackChanges);
-            var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesWithMetaData);
-            var shapedData = _dataShaper.ShapeData(employeesDto, employeeParameters.Fields);
+            var employeesWithMetaData = await _repository.Employee.GetEmployeesAsync(companyId, linkParameters.EmployeeParameters, trackChanges);
 
-            return (employees: shapedData, MetaData: employeesWithMetaData.MetaData);
+            var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesWithMetaData);
+
+            var links = _employeeLinks.TryGenerateLinks(employeesDto, linkParameters.EmployeeParameters.Fields, companyId, linkParameters.Context);
+
+            return (links, employeesWithMetaData.MetaData);
         }
 
         public async Task SaveChangesForPatchAsync(EmployeeForUpdateDto employeeToPatch, Employee employeeEntity)
