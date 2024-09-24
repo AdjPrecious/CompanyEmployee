@@ -16,19 +16,21 @@ namespace NewCompanyEmployee
 
         protected override bool CanWriteType(Type? type)
         {
-            if (typeof(CompanyDto).IsAssignableFrom(type) ||
-           typeof(IEnumerable<CompanyDto>).IsAssignableFrom(type))
+            if (typeof(CompanyDto).IsAssignableFrom(type)
+                || typeof(IEnumerable<CompanyDto>).IsAssignableFrom(type))
             {
                 return base.CanWriteType(type);
             }
+
             return false;
         }
 
-        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext
-       context, Encoding selectedEncoding)
+        public override async Task WriteResponseBodyAsync(OutputFormatterWriteContext context,
+        Encoding selectedEncoding)
         {
             var response = context.HttpContext.Response;
             var buffer = new StringBuilder();
+
             if (context.Object is IEnumerable<CompanyDto>)
             {
                 foreach (var company in (IEnumerable<CompanyDto>)context.Object)
@@ -40,8 +42,10 @@ namespace NewCompanyEmployee
             {
                 FormatCsv(buffer, (CompanyDto)context.Object);
             }
+
             await response.WriteAsync(buffer.ToString());
         }
+
         private static void FormatCsv(StringBuilder buffer, CompanyDto company)
         {
             buffer.AppendLine($"{company.Id},\"{company.Name},\"{company.FullAddress}\"");

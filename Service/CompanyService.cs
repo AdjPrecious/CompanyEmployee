@@ -25,7 +25,7 @@ namespace Service
             var companyEntity = _mapper.Map<Company>(company);
 
             _repository.Company.CreateCompany(companyEntity);
-            _repository.SaveAsync();
+            await _repository.SaveAsync();
 
             var companyToReturn = _mapper.Map<CompanyDto>(companyEntity);
 

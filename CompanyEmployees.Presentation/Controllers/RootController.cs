@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 using Entities.LinkModels;
+using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
-namespace CompanyEmployees.Presentation.Controllers
-{
-    [Microsoft.AspNetCore.Mvc.Route("api")]
+namespace CompanyEmployees.Presentation.Controllers;
+
+    [Route("api")]
     [ApiController]
     public class RootController : ControllerBase
     {
@@ -52,4 +53,4 @@ namespace CompanyEmployees.Presentation.Controllers
             return NoContent();
         }
     }
-}
+

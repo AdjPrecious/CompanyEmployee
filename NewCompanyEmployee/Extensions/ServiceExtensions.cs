@@ -44,11 +44,11 @@ namespace NewCompanyEmployee.Extensions
         {
             services.Configure<MvcOptions>(config =>
             {
-                var systemTextOutputFormatter = config.OutputFormatters.OfType<SystemTextJsonOutputFormatter>()?.FirstOrDefault();
-                if (systemTextOutputFormatter != null)
+                var systemTextJsonOutputFormatter = config.OutputFormatters.OfType<SystemTextJsonOutputFormatter>()?.FirstOrDefault();
+                if (systemTextJsonOutputFormatter != null)
                 {
-                    systemTextOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.hateoas+json");
-                    systemTextOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.apoiroot+json");
+                    systemTextJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.hateoas+json");
+                    systemTextJsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.apoiroot+json");
                 }
 
                 var xmlOutputFormatter = config.OutputFormatters.OfType<XmlDataContractSerializerOutputFormatter>()?.FirstOrDefault();

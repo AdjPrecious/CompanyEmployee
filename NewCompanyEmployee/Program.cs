@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using NewCompanyEmployee.Extensions;
 using NewCompanyEmployee.Utility;
 using NLog;
@@ -33,6 +34,7 @@ builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
 builder.Services.AddCustomMediaTypes();
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
 builder.Services.AddScoped<IEmployeeLinks, EmployeeLinks>();
+builder.Services.AddSwaggerGen(s => s.SwaggerDoc("v1", new OpenApiInfo { Title = "Form Project API", Version = "v1" }));
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -45,9 +47,8 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddControllers(config => { config.RespectBrowserAcceptHeader = true;
     config.ReturnHttpNotAcceptable = true;
     config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
-})
-                                 .AddXmlDataContractSerializerFormatters()
-                                 .AddCustomCSVFormatter()
+}).AddXmlDataContractSerializerFormatters()
+   .AddCustomCSVFormatter()
                 .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 
@@ -61,7 +62,9 @@ app.ConfigureExceptionHandler(logger);
 // Configure the HTTP request pipeline.
 if(app.Environment.IsProduction())
     app.UseHsts();
-    
+
+app.UseSwagger();
+app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 
 app.UseHttpsRedirection();
 
